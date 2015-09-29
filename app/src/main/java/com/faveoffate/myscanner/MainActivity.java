@@ -1,6 +1,7 @@
 package com.faveoffate.myscanner;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.hardware.Camera;
 import android.hardware.Camera.AutoFocusCallback;
@@ -28,11 +29,14 @@ public class MainActivity extends Activity
 
     TextView scanText;
     Button scanButton;
+    Button searchButton;
 
     ImageScanner scanner;
 
     private boolean barcodeScanned = false;
     private boolean previewing = true;
+
+    private String resultString;
 
     static {
         System.loadLibrary("iconv");
@@ -60,6 +64,9 @@ public class MainActivity extends Activity
         scanText = (TextView)findViewById(R.id.scanText);
 
         scanButton = (Button)findViewById(R.id.ScanButton);
+        searchButton = (Button)findViewById(R.id.SearchButton);
+
+        searchButton.setVisibility(View.INVISIBLE);
 
         scanButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
@@ -71,6 +78,14 @@ public class MainActivity extends Activity
                     previewing = true;
                     mCamera.autoFocus(autoFocusCB);
                 }
+            }
+        });
+
+        searchButton.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                Intent i = new Intent(MainActivity.this,ScanResultActivity.class);
+                i.putExtra("extra_resultString", resultString);
+                startActivity(i);
             }
         });
     }
@@ -125,6 +140,8 @@ public class MainActivity extends Activity
                 for (Symbol sym : syms) {
                     scanText.setText("barcode result " + sym.getData());
                     barcodeScanned = true;
+                    searchButton.setVisibility(View.VISIBLE);
+                    resultString = sym.getData();
                 }
             }
         }
