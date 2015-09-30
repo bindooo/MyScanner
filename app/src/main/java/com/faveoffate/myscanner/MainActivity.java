@@ -3,12 +3,14 @@ package com.faveoffate.myscanner;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.database.SQLException;
 import android.hardware.Camera;
 import android.hardware.Camera.AutoFocusCallback;
 import android.hardware.Camera.PreviewCallback;
 import android.hardware.Camera.Size;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -21,22 +23,21 @@ import net.sourceforge.zbar.ImageScanner;
 import net.sourceforge.zbar.Symbol;
 import net.sourceforge.zbar.SymbolSet;
 
+import java.io.IOException;
+
 public class MainActivity extends Activity
 {
     private Camera mCamera;
     private CameraPreview mPreview;
     private Handler autoFocusHandler;
+    private boolean barcodeScanned = false;
+    private boolean previewing = true;
+    private String resultString;
 
     TextView scanText;
     Button scanButton;
     Button searchButton;
-
     ImageScanner scanner;
-
-    private boolean barcodeScanned = false;
-    private boolean previewing = true;
-
-    private String resultString;
 
     static {
         System.loadLibrary("iconv");
@@ -49,10 +50,32 @@ public class MainActivity extends Activity
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
+        DataBaseHelper myDbHelper;
+        myDbHelper = new DataBaseHelper(this);
+
+        try {
+
+            myDbHelper.createDataBase();
+
+        } catch (IOException ioe) {
+
+            throw new Error("Unable to create database");
+
+        }
+
+        try {
+
+            myDbHelper.openDataBase();
+
+        }catch(SQLException sqle){
+
+            throw sqle;
+
+        }
+
         autoFocusHandler = new Handler();
         mCamera = getCameraInstance();
 
-        /* Instance barcode scanner */
         scanner = new ImageScanner();
         scanner.setConfig(0, Config.X_DENSITY, 3);
         scanner.setConfig(0, Config.Y_DENSITY, 3);
