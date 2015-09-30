@@ -27,7 +27,7 @@ public class ScanResultActivity extends Activity {
         setContentView(R.layout.activity_result);
 
         String[] match;
-        TextView barcodeView = (TextView)findViewById(R.id.barcodeView);
+        TextView barcodeView = (TextView) findViewById(R.id.barcodeView);
 
         Intent i = getIntent();
         resultString = i.getStringExtra("extra_resultString");
@@ -39,34 +39,29 @@ public class ScanResultActivity extends Activity {
 
         match = returnMatchByBarcode(resultString);
 
-        barcodeView.setText(match[0]);
+        if (match!=null) barcodeView.setText(match[0]);
+        else barcodeView.setText("No match");
 
     }
 
     void search(String resultString) {
 
-        cursor = db.rawQuery("SELECT _id, barcode, product FROM Products WHERE barcode LIKE ?",
-                new String[]{resultString});
+        cursor = db.rawQuery("SELECT _id, barcode, product FROM Products WHERE barcode LIKE ?", new String[]{resultString});
 
-        if (cursor==null || cursor.getCount()==0) setContentView(R.layout.no_result);
+        if (cursor == null || cursor.getCount() == 0) setContentView(R.layout.no_result);
 
-        adapter = new SimpleCursorAdapter(
-                this,
-                R.layout.product_list_item,
-                cursor,
-                new String[] {"barcode", "product"},
-                new int[] {R.id.barcode, R.id.product});
+        adapter = new SimpleCursorAdapter(this, R.layout.product_list_item, cursor, new String[]{"barcode", "product"}, new int[]{R.id.barcode, R.id.product});
         productList.setAdapter(adapter);
     }
 
     public String[] returnMatchByBarcode(String resultString) throws SQLException {
 
-        String[] columns = new String[]{ "barcode", "product" };
+        String[] columns = new String[]{"barcode", "product"};
         Cursor c = db.query("Products", columns, "barcode" + "=" + resultString, null, null, null, null);
 
-        if (c != null){
-            c.moveToFirst();
-            for(int i = 0; i<2; i++){
+        c.moveToFirst();
+        if (c.getCount() > 0) {
+            for (int i = 0; i < 2; i++) {
                 s1[i] = c.getString(i);
             }
             c.close();
