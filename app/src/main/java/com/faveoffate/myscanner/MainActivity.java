@@ -10,7 +10,6 @@ import android.hardware.Camera.PreviewCallback;
 import android.hardware.Camera.Size;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -27,23 +26,25 @@ import java.io.IOException;
 
 public class MainActivity extends Activity
 {
+    private boolean barcodeScanned = false;
+    private boolean previewing = true;
     private Camera mCamera;
     private CameraPreview mPreview;
     private Handler autoFocusHandler;
-    private boolean barcodeScanned = false;
-    private boolean previewing = true;
     private String resultString;
 
-    TextView scanText;
     Button scanButton;
     Button searchButton;
     ImageScanner scanner;
+    TextView scanText;
+
 
     static {
         System.loadLibrary("iconv");
     }
 
     public void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
@@ -67,7 +68,7 @@ public class MainActivity extends Activity
 
             myDbHelper.openDataBase();
 
-        }catch(SQLException sqle){
+        } catch(SQLException sqle){
 
             throw sqle;
 
@@ -118,7 +119,6 @@ public class MainActivity extends Activity
         releaseCamera();
     }
 
-    /** A safe way to get an instance of the Camera object. */
     public static Camera getCameraInstance(){
         Camera c = null;
         try {
@@ -170,10 +170,9 @@ public class MainActivity extends Activity
         }
     };
 
-    // Mimic continuous auto-focusing
     AutoFocusCallback autoFocusCB = new AutoFocusCallback() {
         public void onAutoFocus(boolean success, Camera camera) {
-            autoFocusHandler.postDelayed(doAutoFocus, 1000);
+            autoFocusHandler.postDelayed(doAutoFocus, 500);
         }
     };
 }

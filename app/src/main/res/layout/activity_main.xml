@@ -28,6 +28,7 @@
             android:text="Scan"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:keepScreenOn="true"
             />
         <Button
             android:id="@+id/SearchButton"
